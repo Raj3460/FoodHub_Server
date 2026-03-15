@@ -11,3 +11,344 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+// ENUM
+enum OrderStatus {
+  placed
+  preparing
+  ready
+  delivered
+  cancelled
+}
+
+enum PaymentStatus {
+  pending
+  paid
+}
+
+enum PaymentMethod {
+  cash_on_delivery
+}
+
+enum CuisineType {
+  Bengali
+  Chinese
+  Indian
+  Thai
+  Italian
+  Mexican
+  Arabic
+  Continental
+  FastFood
+  Desserts
+  Beverages
+}
+
+// Provider model represents a restaurant or food provider in the system. It includes details about the provider, their offerings, and operational information.
+model Provider {
+  id             String  @id @default(cuid())
+  userId         String  @unique // BetterAuth user id
+  restaurantName String
+  branch         String? // Dhanmondi, Gulshan etc
+  description    String? @db.Text
+  contactPhone   String // emergency Contact
+  contactEmail   String?
+  address        String? @db.Text
+  city           String?
+  area           String?
+
+  // Operating Hours
+  isOpen      Boolean @default(true)
+  openingTime String? // "09:00"
+  closingTime String? // "22:00"
+  weeklyOff   String? // "Monday"
+
+  // Food & Cuisine
+  cuisineType CuisineType[]
+
+  // delivery information
+  deliveryTimeMin Int?
+  deliveryTimeMax Int?
+  deliveryFee     Float @default(0)
+  minOrderAmount  Float @default(0)
+
+  // Media
+  logo       String?
+  coverImage String?
+
+  // status
+  isApproved   Boolean @default(false)
+  isFeatured   Boolean @default(false)
+  rating       Float   @default(0)
+  totalReviews Int     @default(0)
+  viewCount    Int     @default(0)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  meals  Meal[]
+  // orders          Order[]
+  carts  Cart[]
+  orders Order[]
+}
+
+// Category model represents a food category (e.g., "Beverages", "Desserts") that meals can belong to. It includes details about the category and its status.
+// Category Model
+model Category {
+  id           String   @id @default(cuid())
+  name         String   @unique
+  slug         String   @unique
+  description  String?
+  icon         String? // Font Awesome icon name
+  image        String?
+  isActive     Boolean  @default(true)
+  displayOrder Int      @default(0)
+  // Timestamps
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  meals Meal[]
+
+  @@index([name])
+  @@index([slug])
+  @@index([isActive])
+}
+
+// Meal model represents a food item offered by a provider. It includes details about the meal, its price, and availability.
+model Meal {
+  id              String   @id @default(cuid())
+  providerId      String
+  categoryId      String
+  name            String
+  description     String?  @db.Text
+  price           Float
+  discountPrice   Float?
+  images          String[] // Array of image URLs
+  thumbnail       String?
+  ingredients     String[]
+  isVegetarian    Boolean  @default(false)
+  isSpicy         Boolean  @default(false)
+  isAvailable     Boolean  @default(true)
+  preparationTime Int?
+  calories        Int?
+  // Stats
+  rating          Float    @default(0)
+  totalReviews    Int      @default(0)
+  totalOrders     Int      @default(0)
+  viewCount       Int      @default(0)
+  //Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  provider   Provider    @relation(fields: [providerId], references: [id])
+  category   Category    @relation(fields: [categoryId], references: [id])
+  orderItems OrderItem[]
+  reviews    Review[]
+  cartItems  CartItem[]
+  favorites  Favorite[]
+
+  @@index([name])
+  @@index([categoryId])
+  @@index([price])
+  @@index([isVegetarian])
+  @@index([isAvailable])
+  @@index([rating])
+}
+
+// Order Model
+model Order {
+  id          String @id @default(cuid())
+  orderNumber String @unique
+  customerId  String // BetterAuth User ID
+  providerId  String
+
+  // Customer Info (snapshot)
+  customerName  String
+  customerPhone String
+  customerEmail String?
+
+  // Delivery Info
+  deliveryAddress      String  @db.Text
+  deliveryArea         String // e.g., "Gulshan", "Banani"
+  deliveryInstructions String?
+  deliveryLat          Float?
+  deliveryLng          Float?
+
+  // Financial
+  subtotal    Float
+  deliveryFee Float
+  discount    Float @default(0)
+  totalAmount Float
+
+  // Payment
+  paymentMethod PaymentMethod @default(cash_on_delivery)
+  paymentStatus PaymentStatus @default(pending)
+
+  // Order Status
+  status OrderStatus @default(placed)
+
+  // Timestamps for each status
+  placedAt           DateTime  @default(now())
+  confirmedAt        DateTime?
+  preparingAt        DateTime?
+  readyAt            DateTime?
+  deliveredAt        DateTime?
+  cancelledAt        DateTime?
+  cancellationReason String?   @db.Text
+
+  // Relations
+  // customer            User          @relation("CustomerOrders", fields: [customerId], references: [id])
+  provider Provider    @relation(fields: [providerId], references: [id])
+  items    OrderItem[]
+  review   Review?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderNumber])
+  @@index([customerId])
+  @@index([providerId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Order Items Model
+model OrderItem {
+  id      String @id @default(cuid())
+  orderId String
+  mealId  String
+
+  // Snapshot of meal at order time
+  mealName  String
+  mealPrice Float
+  quantity  Int
+  subtotal  Float
+
+  // Special requests
+  specialInstructions String?
+
+  // Relations
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  meal  Meal  @relation(fields: [mealId], references: [id])
+
+  @@unique([orderId, mealId])
+}
+
+// Review Model
+model Review {
+  id         String @id @default(cuid())
+  customerId String // BetterAuth User ID
+  mealId     String
+  orderId    String @unique // One review per order
+
+  // Review content
+  rating  Int     @default(5) // 1-5
+  title   String?
+  comment String? @db.Text
+
+  // Verification
+  isVerifiedPurchase Boolean @default(true)
+
+  // Customer snapshot
+  customerName String
+
+  // Provider response
+  providerResponse String?   @db.Text
+  respondedAt      DateTime?
+
+  // Relations
+  // customer            User      @relation("CustomerReviews", fields: [customerId], references: [id])
+  meal  Meal  @relation(fields: [mealId], references: [id])
+  order Order @relation(fields: [orderId], references: [id])
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([customerId, mealId])
+  @@index([mealId])
+  @@index([rating])
+  @@index([createdAt])
+}
+
+// Cart Model
+model Cart {
+  id         String  @id @default(cuid())
+  customerId String  @unique // BetterAuth User ID
+  providerId String?
+
+  // Relations
+  // customer            User      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  provider Provider?  @relation(fields: [providerId], references: [id])
+  items    CartItem[]
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([customerId])
+}
+
+// Cart Items Model
+model CartItem {
+  id                  String  @id @default(cuid())
+  cartId              String
+  mealId              String
+  quantity            Int
+  specialInstructions String?
+
+  // Relations
+  cart Cart @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  meal Meal @relation(fields: [mealId], references: [id])
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  @@unique([cartId, mealId])
+}
+
+// Favorites Model
+model Favorite {
+  id         String @id @default(cuid())
+  customerId String // BetterAuth User ID
+  mealId     String
+
+  // Relations
+  // customer            User      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  meal Meal @relation(fields: [mealId], references: [id])
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  @@unique([customerId, mealId])
+  @@index([customerId])
+  @@index([mealId])
+}
+
+
+// Notifications Model
+model Notification {
+  id                  String    @id @default(cuid())
+  userId              String    // BetterAuth User ID
+  type                String    // 'order_update', 'promotion', 'review_reply'
+  title               String
+  message             String    @db.Text
+  data                Json?     // Additional data like orderId
+  
+  isRead              Boolean   @default(false)
+  
+  // Relations
+  // user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Timestamps
+  createdAt           DateTime  @default(now())
+  readAt              DateTime?
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}
