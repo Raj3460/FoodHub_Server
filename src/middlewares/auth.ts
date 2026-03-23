@@ -1,3 +1,6 @@
+// src/middlewares/auth.ts
+
+
 import { NextFunction, Request, Response } from "express";
 import { auth as betterAuth } from "../lib/auth";
 
@@ -28,11 +31,12 @@ const auth = (...roles: UserRole[]) => {
       const session = await betterAuth.api.getSession({
         headers: req.headers as any,
       });
+      console.log("session , " , session);
 
       if (!session) {
         return res.status(401).json({
           success: false,
-          message: "You are not authorized!",
+          message: "You are not authorized! auth",
         });
       }
 

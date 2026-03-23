@@ -1,3 +1,5 @@
+// src/server.ts
+
 import app from "./app";
 import { prisma } from "./lib/prisma";
 
