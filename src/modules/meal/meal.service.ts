@@ -48,22 +48,22 @@ const getAllMeals = async (payload: { search?: string | undefined}) => {
 //       },
 //     },
 
-//  where: {
-//    OR: [
-//      {
-//        name: {
-//          contains: payload.search as string,
-//          mode: "insensitive", // case-insensitive search
-//        },
-//      },
-//      {
-//        description: {
-//          contains: payload.search as string,
-//          mode: "insensitive",
-//        },
-//      },
-//    ],
-//  }
+ where: {
+   OR: [
+     {
+       name: {
+         contains: payload.search as string,
+         mode: "insensitive", // case-insensitive search
+       },
+     },
+     {
+       description: {
+         contains: payload.search as string,
+         mode: "insensitive",
+       },
+     },
+   ],
+ }
   }
 );
 
