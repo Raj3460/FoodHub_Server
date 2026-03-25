@@ -1,13 +1,12 @@
 import { prisma } from "../../lib/prisma";
 
-
 // create meal service
 const createMeal = async (data: any) => {
   console.log("service okk");
-  
+
   const result = await prisma.meal.create({
     data: {
-      providerId: data.providerId,  // ✅ body থেকে providerId নিবে
+      providerId: data.providerId, // ✅ body থেকে providerId নিবে
       categoryId: data.categoryId,
       name: data.name,
       description: data.description,
@@ -19,53 +18,52 @@ const createMeal = async (data: any) => {
       isVegetarian: data.isVegetarian || false,
       isSpicy: data.isSpicy || false,
       preparationTime: data.preparationTime,
-      calories: data.calories
+      calories: data.calories,
     },
   });
-  
-  console.log(result);
+
+  // console.log(result);
   return result;
 };
 
-
 // get all meals
-const getAllMeals = async (payload: { search?: string | undefined}) => {
-  const meals = await prisma.meal.findMany({
-//     where: {
-//       isAvailable: true,
-//     },
-//     include: {
-//       provider: {
-//         select: {
-//           restaurantName: true,
-//           area: true,
-//           rating: true,
-//           deliveryFee: true,
-//         },
-//       },
-//       category: {
-//         select: { name: true, icon: true },
-//       },
-//     },
 
- where: {
-   OR: [
-     {
-       name: {
-         contains: payload.search as string,
-         mode: "insensitive", // case-insensitive search
-       },
-     },
-     {
-       description: {
-         contains: payload.search as string,
-         mode: "insensitive",
-       },
-     },
-   ],
- }
+
+const getAllMeals = async (payload: {
+  search?: string | undefined;
+  minPrice?: number | undefined;
+  maxPrice?: number | undefined;
+}) => {
+  const whereCondition: any = {};
+
+  if (payload.search) {
+    whereCondition.OR = [
+      {
+        name: {
+          contains: payload.search,
+          mode: "insensitive",
+        },
+      },
+      {
+        description: {
+          contains: payload.search,
+          mode: "insensitive",
+        },
+      },
+    ];
   }
-);
+
+  
+  if (payload.minPrice !== undefined || payload.maxPrice !== undefined) {
+    whereCondition.price = {
+      ...(payload.minPrice !== undefined && { gte: payload.minPrice }),
+      ...(payload.maxPrice !== undefined && { lte: payload.maxPrice }),
+    };
+  }
+
+  const meals = await prisma.meal.findMany({
+    where: whereCondition,
+  });
 
   return meals;
 };

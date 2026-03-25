@@ -5,8 +5,9 @@ export const mealController = {
   // ✅ meal creation controller
   createMeal: async (req: Request, res: Response) => {
     try {
-      //  console.log(req);
+      
       const meal = await mealService.createMeal(req.body);
+      //  console.log("req.body:", req.body);
 
       res.status(201).json({
         success: true,
@@ -26,9 +27,17 @@ export const mealController = {
   getAllMeals: async (req: Request, res: Response) => {
     try {
       const { search } = req.query;
-      console.log("Query params:", { search });
+      // console.log("Query params:", { search });
       const searching = typeof search === "string" ? search : undefined;
-      const meals = await mealService.getAllMeals({ search: searching });
+
+   
+
+    const minPrice = req.query.minPrice ? Number(req.query.minPrice as string) : undefined;
+    const maxPrice = req.query.maxPrice ? Number(req.query.maxPrice as string) : undefined;
+
+
+
+      const meals = await mealService.getAllMeals({ search: searching , minPrice, maxPrice });
       res.json({
         success: true,
         data: meals,
