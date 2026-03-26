@@ -19,7 +19,7 @@ app.all('/api/auth/*splat', toNodeHandler(auth));
 app.use('/meals', mealRouter)
 
 app.get("/", (req, res) => {
-       res.send("Hello, World! baby");
+       res.send("Hello, World!");
 });
 app.get('/check-session', async (req, res) => {
   const session = await auth.api.getSession({ headers: req.headers as any });
