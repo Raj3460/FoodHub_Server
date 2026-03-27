@@ -6,6 +6,8 @@ import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
 import cors from "cors";
 import { mealRouter } from "./modules/meal/meal.router";
+import { categoryRouter } from "./modules/category/category.router";
+import { providerRouter } from "./modules/provider/provider.router";
 
 const app: Application = express();
 app.use(express.json());
@@ -17,6 +19,8 @@ app.use(cors({
 
 app.all('/api/auth/*splat', toNodeHandler(auth));
 app.use('/meals', mealRouter)
+app.use('/categories', categoryRouter)
+app.use('/providers', providerRouter)
 
 app.get("/", (req, res) => {
        res.send("Hello, World!");
