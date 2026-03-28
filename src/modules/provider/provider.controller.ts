@@ -1,17 +1,18 @@
 import { Request, Response } from "express";
 import { providerService } from "./provider.service";
-import { prisma } from "../../lib/prisma";
 
 export const providerController = {
-  // POST /provider/profile
+
+  // POST /providers/profile — Provider create profile 
   createProviderProfile: async (req: Request, res: Response) => {
     try {
-      // Check if user already has a provider profile
+      // আগে থেকে profile আছে কিনা check
       const existing = await providerService.getProviderByUserId(req.user!.id);
       if (existing) {
         return res.status(400).json({
           success: false,
           message: "You already have a provider profile",
+          data: existing,
         });
       }
 
@@ -20,7 +21,11 @@ export const providerController = {
         ...req.body,
       });
 
-      res.status(201).json({ success: true, data: provider });
+      res.status(201).json({
+        success: true,
+        message: "Provider profile created successfully. Waiting for admin approval.",
+        data: provider,
+      });
     } catch (error: any) {
       res.status(500).json({
         success: false,
@@ -30,40 +35,7 @@ export const providerController = {
     }
   },
 
-  // GET /providers (public)
-  getAllProviders: async (req: Request, res: Response) => {
-    try {
-      const search = req.query.search as string | undefined;
-      const providers = await providerService.getAllProviders(search);
-      res.json({ success: true, data: providers });
-    } catch (error: any) {
-      res.status(500).json({
-        success: false,
-        message: "Failed to fetch providers",
-        error: error.message,
-      });
-    }
-  },
-
-  // GET /providers/:id (public)
-  getProviderById: async (req: Request, res: Response) => {
-    try {
-
-      const provider = await providerService.getProviderById(req.params.id as string);
-      if (!provider) {
-        return res.status(404).json({ success: false, message: "Provider not found" });
-      }
-      res.json({ success: true, data: provider });
-    } catch (error: any) {
-      res.status(500).json({
-        success: false,
-        message: "Failed to fetch provider",
-        error: error.message,
-      });
-    }
-  },
-
-  // GET /provider/profile (private)
+  // GET /providers/my/profile — Provider see own profile 
   getMyProviderProfile: async (req: Request, res: Response) => {
     try {
       const provider = await providerService.getProviderByUserId(req.user!.id);
@@ -73,6 +45,7 @@ export const providerController = {
           message: "Provider profile not found. Please create one first.",
         });
       }
+
       res.json({ success: true, data: provider });
     } catch (error: any) {
       res.status(500).json({
@@ -83,23 +56,130 @@ export const providerController = {
     }
   },
 
-  // PUT /provider/profile (private)
+  // PUT /providers/my/profile — Provider self profile update 
   updateMyProviderProfile: async (req: Request, res: Response) => {
     try {
       const provider = await providerService.getProviderByUserId(req.user!.id);
       if (!provider) {
         return res.status(404).json({
           success: false,
-          message: "Provider profile not found",
+          message: "Provider profile not found. Please create one first.",
         });
       }
 
       const updated = await providerService.updateProvider(req.user!.id, req.body);
-      res.json({ success: true, data: updated });
+      res.json({
+        success: true,
+        message: "Provider profile updated successfully",
+        data: updated,
+      });
     } catch (error: any) {
       res.status(500).json({
         success: false,
         message: "Failed to update provider profile",
+        error: error.message,
+      });
+    }
+  },
+
+  // GET /providers — Public,    it is okay
+  getAllProviders: async (req: Request, res: Response) => {
+    try {
+      const search = req.query.search as string | undefined;
+      const providers = await providerService.getAllProviders(search);
+
+      res.json({
+        success: true,
+        total: providers.length,
+        data: providers,
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: "Failed to fetch providers",
+        error: error.message,
+      });
+    }
+  },
+
+  // GET /providers/:id — Public, single provider +>++==> it is okay
+  getProviderById: async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      if (!id || typeof id !== "string") {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid or missing provider ID",
+        });
+      }
+
+      const provider = await providerService.getProviderById(id);
+      if (!provider) {
+        return res.status(404).json({
+          success: false,
+          message: "Provider not found",
+        });
+      }
+
+      res.json({ success: true, data: provider });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: "Failed to fetch provider",
+        error: error.message,
+      });
+    }
+  },
+
+  // PATCH /providers/approve/:id Only admin provider approve/reject
+  approveProvider: async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params as {id : string};
+      const { isApproved } = req.body;
+
+      if (typeof isApproved !== "boolean") {
+        return res.status(400).json({
+          success: false,
+          message: "isApproved must be a boolean value",
+        });
+      }
+
+      const provider = await providerService.getProviderById(id);
+      if (!provider) {
+        return res.status(404).json({
+          success: false,
+          message: "Provider not found",
+        });
+      }
+
+      const updated = await providerService.approveProvider(id, isApproved);
+      res.json({
+        success: true,
+        message: `Provider ${isApproved ? "approved" : "rejected"} successfully`,
+        data: updated,
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: "Failed to approve provider",
+        error: error.message,
+      });
+    }
+  },
+
+  // GET /providers/admin/all — 
+  getAllProvidersForAdmin: async (req: Request, res: Response) => {
+    try {
+      const providers = await providerService.getAllProvidersForAdmin();
+      res.json({
+        success: true,
+        total: providers.length,
+        data: providers,
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: "Failed to fetch providers",
         error: error.message,
       });
     }

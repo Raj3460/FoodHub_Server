@@ -1,18 +1,14 @@
 import { Prisma } from "../../../generated/prisma/client";
-import { CuisineType } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
 
-
-// Create provider profile
-const createProvider = async (data: Prisma.ProviderCreateInput) => {
-  return await prisma.provider.create({
-    data
-  });
+// Provider profile তৈরি
+const createProvider = async (data: Prisma.ProviderUncheckedCreateInput) => {
+  return await prisma.provider.create({ data });
 };
 
-// Get all providers (public)
+// Public — approved providers সবাই দেখতে পারবে
 const getAllProviders = async (search?: string) => {
-  const where: any = { isApproved: true };
+  const where: Prisma.ProviderWhereInput = { isApproved: true };
 
   if (search) {
     where.OR = [
@@ -33,19 +29,27 @@ const getAllProviders = async (search?: string) => {
       area: true,
       cuisineType: true,
       logo: true,
+      coverImage: true,
       rating: true,
+      totalReviews: true,
       deliveryFee: true,
+      deliveryTimeMin: true,
+      deliveryTimeMax: true,
       minOrderAmount: true,
       isOpen: true,
+      isFeatured: true,
       _count: {
         select: { meals: true },
       },
     },
-    orderBy: { rating: "desc" },
+    orderBy: [
+      { isFeatured: "desc" },
+      { rating: "desc" },
+    ],
   });
 };
 
-// Get provider by ID with menu (public)
+// Public — single provider তার meals সহ
 const getProviderById = async (id: string) => {
   return await prisma.provider.findUnique({
     where: { id },
@@ -66,40 +70,83 @@ const getProviderById = async (id: string) => {
   });
 };
 
-// Get provider by user ID (for logged in provider)
+// Provider নিজের profile দেখবে বা check করবে
 const getProviderByUserId = async (userId: string) => {
   return await prisma.provider.findUnique({
     where: { userId },
     include: {
       meals: {
         orderBy: { createdAt: "desc" },
-        include: {
-          category: true,
-        },
+        include: { category: true },
+      },
+      _count: {
+        select: { meals: true, orders: true },
       },
     },
   });
 };
 
-// Update provider profile
-const updateProvider = async (userId: string, data: any) => {
-  const updateData: any = {};
-  if (data.restaurantName !== undefined) updateData.restaurantName = data.restaurantName;
-  if (data.description !== undefined) updateData.description = data.description;
-  if (data.contactPhone !== undefined) updateData.contactPhone = data.contactPhone;
-  if (data.contactEmail !== undefined) updateData.contactEmail = data.contactEmail;
-  if (data.address !== undefined) updateData.address = data.address;
-  if (data.city !== undefined) updateData.city = data.city;
-  if (data.area !== undefined) updateData.area = data.area;
-  if (data.cuisineType !== undefined) updateData.cuisineType = data.cuisineType;
-  if (data.isOpen !== undefined) updateData.isOpen = data.isOpen;
-  if (data.deliveryFee !== undefined) updateData.deliveryFee = data.deliveryFee;
-  if (data.minOrderAmount !== undefined) updateData.minOrderAmount = data.minOrderAmount;
-  if (data.logo !== undefined) updateData.logo = data.logo;
+// Provider নিজের profile update করবে
+const updateProvider = async (
+  userId: string,
+  data: Prisma.ProviderUncheckedUpdateInput
+) => {
+  const updateData: Prisma.ProviderUncheckedUpdateInput = {
+    ...(data.restaurantName !== undefined && { restaurantName: data.restaurantName }),
+    ...(data.branch !== undefined && { branch: data.branch }),
+    ...(data.description !== undefined && { description: data.description }),
+    ...(data.contactPhone !== undefined && { contactPhone: data.contactPhone }),
+    ...(data.contactEmail !== undefined && { contactEmail: data.contactEmail }),
+    ...(data.address !== undefined && { address: data.address }),
+    ...(data.city !== undefined && { city: data.city }),
+    ...(data.area !== undefined && { area: data.area }),
+    ...(data.cuisineType !== undefined && { cuisineType: data.cuisineType }),
+    ...(data.isOpen !== undefined && { isOpen: data.isOpen }),
+    ...(data.openingTime !== undefined && { openingTime: data.openingTime }),
+    ...(data.closingTime !== undefined && { closingTime: data.closingTime }),
+    ...(data.weeklyOff !== undefined && { weeklyOff: data.weeklyOff }),
+    ...(data.deliveryFee !== undefined && { deliveryFee: data.deliveryFee }),
+    ...(data.deliveryTimeMin !== undefined && { deliveryTimeMin: data.deliveryTimeMin }),
+    ...(data.deliveryTimeMax !== undefined && { deliveryTimeMax: data.deliveryTimeMax }),
+    ...(data.minOrderAmount !== undefined && { minOrderAmount: data.minOrderAmount }),
+    ...(data.logo !== undefined && { logo: data.logo }),
+    ...(data.coverImage !== undefined && { coverImage: data.coverImage }),
+  };
 
   return await prisma.provider.update({
     where: { userId },
     data: updateData,
+  });
+};
+
+// Admin — provider approve/reject করবে
+const approveProvider = async (id: string, isApproved: boolean) => {
+  return await prisma.provider.update({
+    where: { id },
+    data: { isApproved },
+  });
+};
+
+// Admin — সব provider দেখবে
+const getAllProvidersForAdmin = async () => {
+  return await prisma.provider.findMany({
+    select: {
+      id: true,
+      userId: true,
+      restaurantName: true,
+      contactPhone: true,
+      contactEmail: true,
+      city: true,
+      isApproved: true,
+      isFeatured: true,
+      isOpen: true,
+      rating: true,
+      createdAt: true,
+      _count: {
+        select: { meals: true, orders: true },
+      },
+    },
+    orderBy: { createdAt: "desc" },
   });
 };
 
@@ -109,4 +156,6 @@ export const providerService = {
   getProviderById,
   getProviderByUserId,
   updateProvider,
+  approveProvider,
+  getAllProvidersForAdmin,
 };

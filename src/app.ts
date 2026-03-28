@@ -21,6 +21,7 @@ app.all('/api/auth/*splat', toNodeHandler(auth));
 app.use('/meals', mealRouter)
 app.use('/categories', categoryRouter)
 app.use('/providers', providerRouter)
+// app.use('/carts', cartRouter)
 
 app.get("/", (req, res) => {
        res.send("Hello, World!");
