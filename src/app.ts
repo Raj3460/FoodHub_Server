@@ -10,6 +10,8 @@ import { categoryRouter } from "./modules/category/category.router";
 import { providerRouter } from "./modules/provider/provider.router";
 import { cartRouter } from "./modules/cart/cart.router";
 import { orderRouter } from "./modules/order/order.router";
+import { reviewRouter } from "./modules/review/review.router";
+import { adminRouter } from "./modules/admin/admin.router";
 
 const app: Application = express();
 app.use(express.json());
@@ -25,6 +27,8 @@ app.use('/categories', categoryRouter)
 app.use('/providers', providerRouter)
 app.use('/cart', cartRouter)
 app.use('/orders', orderRouter )
+app.use('/reviews', reviewRouter)
+app.use('/admin', adminRouter)
 
 app.get("/", (req, res) => {
        res.send("Hello, World!");
