@@ -103,10 +103,13 @@ export const providerController = {
   // },
 
   // GET /providers — Public
-getAllProviders: async (req: Request, res: Response) => {
+
+
+//! get Providers when isFeatured query parameter is provided
+  getAllProviders: async (req: Request, res: Response) => {
   try {
     const search = req.query.search as string | undefined;
-    const isFeatured = req.query.isFeatured === 'true'; // ✅ কোয়েরি থেকে বুলিয়ান নেওয়া
+    const isFeatured = req.query.isFeatured === 'true'; 
     const providers = await providerService.getAllProviders(search, isFeatured  );
 
     res.json({
