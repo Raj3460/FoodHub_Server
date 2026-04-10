@@ -82,25 +82,46 @@ export const providerController = {
     }
   },
 
-  // GET /providers — Public,    it is okay
-  getAllProviders: async (req: Request, res: Response) => {
-    try {
-      const search = req.query.search as string | undefined;
-      const providers = await providerService.getAllProviders(search);
+  // // GET /providers — Public,    it is okay
+  // getAllProviders: async (req: Request, res: Response) => {
+  //   try {
+  //     const search = req.query.search as string | undefined;
+  //     const providers = await providerService.getAllProviders(search);
 
-      res.json({
-        success: true,
-        total: providers.length,
-        data: providers,
-      });
-    } catch (error: any) {
-      res.status(500).json({
-        success: false,
-        message: "Failed to fetch providers",
-        error: error.message,
-      });
-    }
-  },
+  //     res.json({
+  //       success: true,
+  //       total: providers.length,
+  //       data: providers,
+  //     });
+  //   } catch (error: any) {
+  //     res.status(500).json({
+  //       success: false,
+  //       message: "Failed to fetch providers",
+  //       error: error.message,
+  //     });
+  //   }
+  // },
+
+  // GET /providers — Public
+getAllProviders: async (req: Request, res: Response) => {
+  try {
+    const search = req.query.search as string | undefined;
+    const isFeatured = req.query.isFeatured === 'true'; // ✅ কোয়েরি থেকে বুলিয়ান নেওয়া
+    const providers = await providerService.getAllProviders(search, isFeatured  );
+
+    res.json({
+      success: true,
+      total: providers.length,
+      data: providers,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch providers",
+      error: error.message,
+    });
+  }
+},
 
   // GET /providers/:id — Public, single provider +>++==> it is okay
   getProviderById: async (req: Request, res: Response) => {

@@ -6,8 +6,51 @@ const createProvider = async (data: Prisma.ProviderUncheckedCreateInput) => {
   return await prisma.provider.create({ data });
 };
 
-// Public — approved providers সবাই দেখতে পারবে
-const getAllProviders = async (search?: string) => {
+// // Public — approved providers সবাই দেখতে পারবে
+// const getAllProviders = async (search?: string) => {
+//   const where: Prisma.ProviderWhereInput = { isApproved: true };
+
+//   if (search) {
+//     where.OR = [
+//       { restaurantName: { contains: search, mode: "insensitive" } },
+//       { description: { contains: search, mode: "insensitive" } },
+//       { city: { contains: search, mode: "insensitive" } },
+//       { area: { contains: search, mode: "insensitive" } },
+//     ];
+//   }
+
+//   return await prisma.provider.findMany({
+//     where,
+//     select: {
+//       id: true,
+//       restaurantName: true,
+//       description: true,
+//       city: true,
+//       area: true,
+//       cuisineType: true,
+//       logo: true,
+//       coverImage: true,
+//       rating: true,
+//       totalReviews: true,
+//       deliveryFee: true,
+//       deliveryTimeMin: true,
+//       deliveryTimeMax: true,
+//       minOrderAmount: true,
+//       isOpen: true,
+//       isFeatured: true,
+//       _count: {
+//         select: { meals: true },
+//       },
+//     },
+//     orderBy: [
+//       { isFeatured: "desc" },
+//       { rating: "desc" },
+//     ],
+//   });
+// };
+
+// Public — approved providers সবাই দেখতে পারবে (isFeatured ফিল্টার সহ)
+const getAllProviders = async (search?: string, isFeatured?: boolean) => {
   const where: Prisma.ProviderWhereInput = { isApproved: true };
 
   if (search) {
@@ -17,6 +60,10 @@ const getAllProviders = async (search?: string) => {
       { city: { contains: search, mode: "insensitive" } },
       { area: { contains: search, mode: "insensitive" } },
     ];
+  }
+
+  if (isFeatured !== undefined) {
+    where.isFeatured = isFeatured;
   }
 
   return await prisma.provider.findMany({
