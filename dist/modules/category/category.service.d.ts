@@ -1,4 +1,4 @@
-import { Prisma } from "../../../generated/prisma/client";
+import { Prisma } from "../@prisma/client";
 export declare const categoryService: {
     createCategory: (data: Prisma.CategoryCreateInput) => Promise<{
         name: string;

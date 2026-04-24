@@ -1,4 +1,4 @@
-import { Prisma } from "../../../generated/prisma/client";
+import { Prisma } from "../@prisma/client";
 export declare const providerService: {
     createProvider: (data: Prisma.ProviderUncheckedCreateInput) => Promise<{
         id: string;

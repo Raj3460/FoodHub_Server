@@ -81,7 +81,7 @@ export declare const mealService: {
             openingTime: string | null;
             closingTime: string | null;
             weeklyOff: string | null;
-            cuisineType: import("../../../generated/prisma/enums").CuisineType[];
+            cuisineType: import(".prisma/client").$Enums.CuisineType[];
             deliveryTimeMin: number | null;
             deliveryTimeMax: number | null;
             deliveryFee: number;

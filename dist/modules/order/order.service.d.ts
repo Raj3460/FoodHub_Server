@@ -1,4 +1,4 @@
-import { OrderStatus } from "../../../generated/prisma/client";
+import { OrderStatus } from "../@prisma/client";
 export declare const orderService: {
     createOrder: (customerId: string, data: {
         deliveryAddress: string;

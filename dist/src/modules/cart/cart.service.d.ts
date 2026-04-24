@@ -43,9 +43,9 @@ export declare const cartService: {
             id: string;
             createdAt: Date;
             mealId: string;
+            cartId: string;
             quantity: number;
             specialInstructions: string | null;
-            cartId: string;
         })[];
     } & {
         id: string;
@@ -62,25 +62,25 @@ export declare const cartService: {
         id: string;
         createdAt: Date;
         mealId: string;
+        cartId: string;
         quantity: number;
         specialInstructions: string | null;
-        cartId: string;
     }>;
     updateCartItem: (customerId: string, itemId: string, quantity: number) => Promise<{
         id: string;
         createdAt: Date;
         mealId: string;
+        cartId: string;
         quantity: number;
         specialInstructions: string | null;
-        cartId: string;
     }>;
     removeFromCart: (customerId: string, itemId: string) => Promise<{
         id: string;
         createdAt: Date;
         mealId: string;
+        cartId: string;
         quantity: number;
         specialInstructions: string | null;
-        cartId: string;
     }>;
     clearCart: (customerId: string) => Promise<{
         id: string;

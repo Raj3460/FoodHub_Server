@@ -53,7 +53,7 @@ export declare const adminService: {
         openingTime: string | null;
         closingTime: string | null;
         weeklyOff: string | null;
-        cuisineType: import("../../../generated/prisma/enums").CuisineType[];
+        cuisineType: import(".prisma/client").$Enums.CuisineType[];
         deliveryTimeMin: number | null;
         deliveryTimeMax: number | null;
         deliveryFee: number;
@@ -83,7 +83,7 @@ export declare const adminService: {
         openingTime: string | null;
         closingTime: string | null;
         weeklyOff: string | null;
-        cuisineType: import("../../../generated/prisma/enums").CuisineType[];
+        cuisineType: import(".prisma/client").$Enums.CuisineType[];
         deliveryTimeMin: number | null;
         deliveryTimeMax: number | null;
         deliveryFee: number;
@@ -101,22 +101,21 @@ export declare const adminService: {
             id: string;
             mealId: string;
             orderId: string;
+            subtotal: number;
+            quantity: number;
+            specialInstructions: string | null;
             mealName: string;
             mealPrice: number;
-            quantity: number;
-            subtotal: number;
-            specialInstructions: string | null;
         }[];
     } & {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        status: import("../../../generated/prisma/enums").OrderStatus;
+        status: import(".prisma/client").$Enums.OrderStatus;
         providerId: string;
         deliveryFee: number;
         customerId: string;
         customerName: string;
-        subtotal: number;
         orderNumber: string;
         customerPhone: string;
         customerEmail: string | null;
@@ -125,10 +124,11 @@ export declare const adminService: {
         deliveryInstructions: string | null;
         deliveryLat: number | null;
         deliveryLng: number | null;
+        subtotal: number;
         discount: number;
         totalAmount: number;
-        paymentMethod: import("../../../generated/prisma/enums").PaymentMethod;
-        paymentStatus: import("../../../generated/prisma/enums").PaymentStatus;
+        paymentMethod: import(".prisma/client").$Enums.PaymentMethod;
+        paymentStatus: import(".prisma/client").$Enums.PaymentStatus;
         placedAt: Date;
         confirmedAt: Date | null;
         preparingAt: Date | null;

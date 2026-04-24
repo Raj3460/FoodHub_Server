@@ -20,7 +20,7 @@ export declare const providerService: {
         openingTime: string | null;
         closingTime: string | null;
         weeklyOff: string | null;
-        cuisineType: import("../../../generated/prisma/enums").CuisineType[];
+        cuisineType: import(".prisma/client").$Enums.CuisineType[];
         deliveryTimeMin: number | null;
         deliveryTimeMax: number | null;
         deliveryFee: number;
@@ -42,7 +42,7 @@ export declare const providerService: {
         city: string;
         area: string;
         isOpen: boolean;
-        cuisineType: import("../../../generated/prisma/enums").CuisineType[];
+        cuisineType: import(".prisma/client").$Enums.CuisineType[];
         deliveryTimeMin: number;
         deliveryTimeMax: number;
         deliveryFee: number;
@@ -104,7 +104,7 @@ export declare const providerService: {
         openingTime: string | null;
         closingTime: string | null;
         weeklyOff: string | null;
-        cuisineType: import("../../../generated/prisma/enums").CuisineType[];
+        cuisineType: import(".prisma/client").$Enums.CuisineType[];
         deliveryTimeMin: number | null;
         deliveryTimeMax: number | null;
         deliveryFee: number;
@@ -175,7 +175,7 @@ export declare const providerService: {
         openingTime: string | null;
         closingTime: string | null;
         weeklyOff: string | null;
-        cuisineType: import("../../../generated/prisma/enums").CuisineType[];
+        cuisineType: import(".prisma/client").$Enums.CuisineType[];
         deliveryTimeMin: number | null;
         deliveryTimeMax: number | null;
         deliveryFee: number;
@@ -205,7 +205,7 @@ export declare const providerService: {
         openingTime: string | null;
         closingTime: string | null;
         weeklyOff: string | null;
-        cuisineType: import("../../../generated/prisma/enums").CuisineType[];
+        cuisineType: import(".prisma/client").$Enums.CuisineType[];
         deliveryTimeMin: number | null;
         deliveryTimeMax: number | null;
         deliveryFee: number;
@@ -235,7 +235,7 @@ export declare const providerService: {
         openingTime: string | null;
         closingTime: string | null;
         weeklyOff: string | null;
-        cuisineType: import("../../../generated/prisma/enums").CuisineType[];
+        cuisineType: import(".prisma/client").$Enums.CuisineType[];
         deliveryTimeMin: number | null;
         deliveryTimeMax: number | null;
         deliveryFee: number;
