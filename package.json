@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "npx tsx watch src/server.ts",
-    "build": "tsc",
+    "build": "tsc && npm run postbuild",
+    "postbuild": "copyfiles -u 1 generated/**/* dist/generated",
     "start": "node dist/server.js"
   },
   "keywords": [],
@@ -19,6 +20,7 @@
     "@types/node": "^25.6.0",
     "@types/nodemailer": "^7.0.11",
     "@types/pg": "^8.18.0",
+    "copyfiles": "^2.4.1",
     "prisma": "^7.8.0",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
