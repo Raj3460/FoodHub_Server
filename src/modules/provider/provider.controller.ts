@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import { providerService } from "./provider.service";
+// import { Prisma } from "../../../generated/prisma/client";
+import { prisma } from "../../lib/prisma";
 
 export const providerController = {
 
@@ -105,7 +107,7 @@ export const providerController = {
   // GET /providers — Public
 
 
-//! get Providers when isFeatured query parameter is provided
+//! get all Providers where isFeatured query parameter is provided
   getAllProviders: async (req: Request, res: Response) => {
   try {
     const search = req.query.search as string | undefined;
@@ -208,4 +210,30 @@ export const providerController = {
       });
     }
   },
+
+  // GET /providers/stats — Provider Dashboard Stats
+getStats: async (req: Request, res: Response) => {
+  try {
+    // console.log("🔍 User ID from session:", req.user!.id);
+    const stats = await providerService.getProviderStats(req.user!.id);
+    // console.log("🔍 Stats from DB:", stats);
+    if (!stats) {
+      return res.status(404).json({ success: false, message: "Provider not found " });
+    }
+    res.json({ success: true, data: stats });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+},
+
+// GET /providers/meals — Provider Dashboard Meals List
+getMyMeals: async (req: Request, res: Response) => {
+  try {
+    const meals = await providerService.getProviderMeals(req.user!.id);
+    res.json({ success: true, data: meals });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+},
+
 };

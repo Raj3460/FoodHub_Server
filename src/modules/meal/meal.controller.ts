@@ -24,36 +24,66 @@ export const mealController = {
   },
 
   // get all meals
-  getAllMeals: async (req: Request, res: Response) => {
-    try {
-      const { search } = req.query;
-      // console.log("Query params:", { search });
-      const searching = typeof search === "string" ? search : undefined;
+  // getAllMeals: async (req: Request, res: Response) => {
+  //   try {
+  //     const { search } = req.query;
+  //     // console.log("Query params:", { search });
+  //     const searching = typeof search === "string" ? search : undefined;
 
-      const minPrice = req.query.minPrice
-        ? Number(req.query.minPrice as string)
-        : undefined;
-      const maxPrice = req.query.maxPrice
-        ? Number(req.query.maxPrice as string)
-        : undefined;
+  //     const minPrice = req.query.minPrice
+  //       ? Number(req.query.minPrice as string)
+  //       : undefined;
+  //     const maxPrice = req.query.maxPrice
+  //       ? Number(req.query.maxPrice as string)
+  //       : undefined;
 
-      const meals = await mealService.getAllMeals({
-        search: searching,
-        minPrice,
-        maxPrice,
-      });
-      res.json({
-        success: true,
-        data: meals,
-      });
-    } catch (error: any) {
-      res.status(500).json({
-        success: false,
-        message: "Failed to fetch meals",
-        error: error.message,
-      });
-    }
-  },
+  //     const meals = await mealService.getAllMeals({
+  //       search: searching,
+  //       minPrice,
+  //       maxPrice,
+  //     });
+  //     res.json({
+  //       success: true,
+  //       data: meals,
+  //     });
+  //   } catch (error: any) {
+  //     res.status(500).json({
+  //       success: false,
+  //       message: "Failed to fetch meals",
+  //       error: error.message,
+  //     });
+  //   }
+  // },
+
+  // meal.controller.ts এর getAllMeals
+getAllMeals: async (req: Request, res: Response) => {
+  try {
+    const params: {
+      search?: string;
+      minPrice?: number;
+      maxPrice?: number;
+      categoryId?: string;
+      minRating?: number;
+      sort?: string;
+    } = {};
+
+    if (req.query.search) params.search = req.query.search as string;
+    if (req.query.minPrice) params.minPrice = Number(req.query.minPrice);
+    if (req.query.maxPrice) params.maxPrice = Number(req.query.maxPrice);
+    if (req.query.categoryId) params.categoryId = req.query.categoryId as string;
+    if (req.query.minRating) params.minRating = Number(req.query.minRating);
+    if (req.query.sort) params.sort = req.query.sort as string;
+
+    const meals = await mealService.getAllMeals(params);
+    res.json({ success: true, data: meals });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Failed to fetch meals" });
+  }
+},
+
+
+
+
 
   // get meal by id
   getMealById: async (req: Request, res: Response) => {

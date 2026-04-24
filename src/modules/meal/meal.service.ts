@@ -28,44 +28,95 @@ const createMeal = async (data: Omit<Meal, "id">) => {
 };
 
 // get all meals
-const getAllMeals = async (payload:
-   {
-  search?: string | undefined;
-  minPrice?: number | undefined;
-  maxPrice?: number | undefined;
-}) => {
-  const whereCondition: any = {};
+// const getAllMeals = async (payload:
+//    {
+//   search?: string | undefined;
+//   minPrice?: number | undefined;
+//   maxPrice?: number | undefined;
+// }) => {
+//   const whereCondition: any = {};
 
+//   if (payload.search) {
+//     whereCondition.OR = [
+//       {
+//         name: {
+//           contains: payload.search,
+//           mode: "insensitive",
+//         },
+//       },
+//       {
+//         description: {
+//           contains: payload.search,
+//           mode: "insensitive",
+//         },
+//       },
+//     ];
+//   }
+
+  
+//   if (payload.minPrice !== undefined || payload.maxPrice !== undefined) {
+//     whereCondition.price = {
+//       ...(payload.minPrice !== undefined && { gte: payload.minPrice }),
+//       ...(payload.maxPrice !== undefined && { lte: payload.maxPrice }),
+//     };
+//   }
+
+//   const meals = await prisma.meal.findMany({
+//     where: whereCondition,
+//   });
+
+//   return meals;
+// };
+
+const getAllMeals = async (payload: {
+  search?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  categoryId?: string;
+  minRating?: number;
+  sort?: string;
+}) => {
+  const whereCondition: any = { isAvailable: true };
+
+  // সার্চ
   if (payload.search) {
     whereCondition.OR = [
-      {
-        name: {
-          contains: payload.search,
-          mode: "insensitive",
-        },
-      },
-      {
-        description: {
-          contains: payload.search,
-          mode: "insensitive",
-        },
-      },
+      { name: { contains: payload.search, mode: "insensitive" } },
+      { description: { contains: payload.search, mode: "insensitive" } },
     ];
   }
 
-  
-  if (payload.minPrice !== undefined || payload.maxPrice !== undefined) {
-    whereCondition.price = {
-      ...(payload.minPrice !== undefined && { gte: payload.minPrice }),
-      ...(payload.maxPrice !== undefined && { lte: payload.maxPrice }),
-    };
+  // ক্যাটাগরি ফিল্টার
+  if (payload.categoryId) {
+    whereCondition.categoryId = payload.categoryId;
   }
 
-  const meals = await prisma.meal.findMany({
-    where: whereCondition,
-  });
+  // রেটিং ফিল্টার (৪+ হলে)
+  if (payload.minRating) {
+    whereCondition.rating = { gte: payload.minRating };
+  }
 
-  return meals;
+  // প্রাইস রেঞ্জ
+  if (payload.minPrice !== undefined || payload.maxPrice !== undefined) {
+    whereCondition.price = {};
+    if (payload.minPrice !== undefined) whereCondition.price.gte = payload.minPrice;
+    if (payload.maxPrice !== undefined) whereCondition.price.lte = payload.maxPrice;
+  }
+
+  // সর্টিং
+  let orderBy: any = { createdAt: "desc" };
+  if (payload.sort === "price_asc") orderBy = { price: "asc" };
+  if (payload.sort === "price_desc") orderBy = { price: "desc" };
+  if (payload.sort === "rating_desc") orderBy = { rating: "desc" };
+
+  return await prisma.meal.findMany({
+    where: whereCondition,
+    orderBy,
+    include: {
+      provider: { select: { restaurantName: true } },
+      category: { select: { name: true } },
+    },
+  });
 };
 
 

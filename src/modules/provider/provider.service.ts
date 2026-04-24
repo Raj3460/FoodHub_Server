@@ -197,6 +197,53 @@ const getAllProvidersForAdmin = async () => {
   });
 };
 
+// Provider Dashboard Stats
+const getProviderStats = async (userId: string) => {
+  const provider = await prisma.provider.findUnique({
+    where: { userId },
+    include: {
+      meals: true,
+      orders: true,
+    },
+  });
+
+  if (!provider) return null;
+
+  const totalMeals = provider.meals.length;
+  const totalOrders = provider.orders.length;
+  const pendingOrders = provider.orders.filter((o: any) => o.status === "placed").length;
+  const avgRating = provider.meals.reduce((sum: number, m: any) => sum + (m.rating || 0), 0) / (totalMeals || 1);
+
+  return {
+    totalMeals,
+    totalOrders,
+    pendingOrders,
+    averageRating: avgRating,
+  };
+};
+
+// Provider Dashboard Meals List
+
+const getProviderMeals = async (userId: string) => {
+  const provider = await prisma.provider.findUnique({
+    where: { userId },
+    include: {
+      meals: {
+        include: {
+          category: {
+            select: { name: true, icon: true },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+      },
+    },
+  });
+  return provider?.meals || [];
+};
+
+
+
+
 export const providerService = {
   createProvider,
   getAllProviders,
@@ -205,4 +252,6 @@ export const providerService = {
   updateProvider,
   approveProvider,
   getAllProvidersForAdmin,
+  getProviderStats,
+  getProviderMeals
 };
