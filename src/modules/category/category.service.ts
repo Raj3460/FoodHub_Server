@@ -1,6 +1,7 @@
 // src/modules/category/category.service.ts
 
-import { Category, Prisma } from "../../../generated/prisma/client";
+// import { Category, Prisma } from "../../../generated/prisma/client";
+import { Category, Prisma } from "@prisma/client";
 import { prisma } from "../../lib/prisma";
 
 // Create category

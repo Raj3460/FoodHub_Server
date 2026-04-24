@@ -1,4 +1,4 @@
-import { Meal } from "../../../generated/prisma/client";
+import { Meal } from "@prisma/client";
 export declare const mealService: {
     createMeal: (data: Omit<Meal, "id">) => Promise<{
         name: string;

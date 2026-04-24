@@ -1,4 +1,4 @@
-import { OrderStatus } from "../../../generated/prisma/client";
+import { OrderStatus } from "@prisma/client";
 import { prisma } from "../../lib/prisma";
 
 // Order number generate করা

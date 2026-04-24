@@ -101,11 +101,11 @@ export declare const adminService: {
             id: string;
             mealId: string;
             orderId: string;
-            subtotal: number;
-            quantity: number;
-            specialInstructions: string | null;
             mealName: string;
             mealPrice: number;
+            quantity: number;
+            subtotal: number;
+            specialInstructions: string | null;
         }[];
     } & {
         id: string;
@@ -116,6 +116,7 @@ export declare const adminService: {
         deliveryFee: number;
         customerId: string;
         customerName: string;
+        subtotal: number;
         orderNumber: string;
         customerPhone: string;
         customerEmail: string | null;
@@ -124,7 +125,6 @@ export declare const adminService: {
         deliveryInstructions: string | null;
         deliveryLat: number | null;
         deliveryLng: number | null;
-        subtotal: number;
         discount: number;
         totalAmount: number;
         paymentMethod: import("../../../generated/prisma/enums").PaymentMethod;

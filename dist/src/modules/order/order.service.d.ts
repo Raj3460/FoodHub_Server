@@ -1,4 +1,4 @@
-import { OrderStatus } from "../../../generated/prisma/client";
+import { OrderStatus } from "@prisma/client";
 export declare const orderService: {
     createOrder: (customerId: string, data: {
         deliveryAddress: string;
@@ -16,21 +16,22 @@ export declare const orderService: {
             id: string;
             mealId: string;
             orderId: string;
-            subtotal: number;
-            quantity: number;
-            specialInstructions: string | null;
             mealName: string;
             mealPrice: number;
+            quantity: number;
+            subtotal: number;
+            specialInstructions: string | null;
         }[];
     } & {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        status: OrderStatus;
+        status: import("../../../generated/prisma/enums").OrderStatus;
         providerId: string;
         deliveryFee: number;
         customerId: string;
         customerName: string;
+        subtotal: number;
         orderNumber: string;
         customerPhone: string;
         customerEmail: string | null;
@@ -39,7 +40,6 @@ export declare const orderService: {
         deliveryInstructions: string | null;
         deliveryLat: number | null;
         deliveryLng: number | null;
-        subtotal: number;
         discount: number;
         totalAmount: number;
         paymentMethod: import("../../../generated/prisma/enums").PaymentMethod;
@@ -65,21 +65,22 @@ export declare const orderService: {
             id: string;
             mealId: string;
             orderId: string;
-            subtotal: number;
-            quantity: number;
-            specialInstructions: string | null;
             mealName: string;
             mealPrice: number;
+            quantity: number;
+            subtotal: number;
+            specialInstructions: string | null;
         })[];
     } & {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        status: OrderStatus;
+        status: import("../../../generated/prisma/enums").OrderStatus;
         providerId: string;
         deliveryFee: number;
         customerId: string;
         customerName: string;
+        subtotal: number;
         orderNumber: string;
         customerPhone: string;
         customerEmail: string | null;
@@ -88,7 +89,6 @@ export declare const orderService: {
         deliveryInstructions: string | null;
         deliveryLat: number | null;
         deliveryLng: number | null;
-        subtotal: number;
         discount: number;
         totalAmount: number;
         paymentMethod: import("../../../generated/prisma/enums").PaymentMethod;
@@ -108,21 +108,6 @@ export declare const orderService: {
             address: string;
             logo: string;
         };
-        items: ({
-            meal: {
-                name: string;
-                thumbnail: string;
-            };
-        } & {
-            id: string;
-            mealId: string;
-            orderId: string;
-            subtotal: number;
-            quantity: number;
-            specialInstructions: string | null;
-            mealName: string;
-            mealPrice: number;
-        })[];
         review: {
             id: string;
             createdAt: Date;
@@ -138,15 +123,31 @@ export declare const orderService: {
             providerResponse: string | null;
             respondedAt: Date | null;
         };
+        items: ({
+            meal: {
+                name: string;
+                thumbnail: string;
+            };
+        } & {
+            id: string;
+            mealId: string;
+            orderId: string;
+            mealName: string;
+            mealPrice: number;
+            quantity: number;
+            subtotal: number;
+            specialInstructions: string | null;
+        })[];
     } & {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        status: OrderStatus;
+        status: import("../../../generated/prisma/enums").OrderStatus;
         providerId: string;
         deliveryFee: number;
         customerId: string;
         customerName: string;
+        subtotal: number;
         orderNumber: string;
         customerPhone: string;
         customerEmail: string | null;
@@ -155,7 +156,6 @@ export declare const orderService: {
         deliveryInstructions: string | null;
         deliveryLat: number | null;
         deliveryLng: number | null;
-        subtotal: number;
         discount: number;
         totalAmount: number;
         paymentMethod: import("../../../generated/prisma/enums").PaymentMethod;
@@ -172,11 +172,12 @@ export declare const orderService: {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        status: OrderStatus;
+        status: import("../../../generated/prisma/enums").OrderStatus;
         providerId: string;
         deliveryFee: number;
         customerId: string;
         customerName: string;
+        subtotal: number;
         orderNumber: string;
         customerPhone: string;
         customerEmail: string | null;
@@ -185,7 +186,6 @@ export declare const orderService: {
         deliveryInstructions: string | null;
         deliveryLat: number | null;
         deliveryLng: number | null;
-        subtotal: number;
         discount: number;
         totalAmount: number;
         paymentMethod: import("../../../generated/prisma/enums").PaymentMethod;
@@ -207,21 +207,22 @@ export declare const orderService: {
             id: string;
             mealId: string;
             orderId: string;
-            subtotal: number;
-            quantity: number;
-            specialInstructions: string | null;
             mealName: string;
             mealPrice: number;
+            quantity: number;
+            subtotal: number;
+            specialInstructions: string | null;
         })[];
     } & {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        status: OrderStatus;
+        status: import("../../../generated/prisma/enums").OrderStatus;
         providerId: string;
         deliveryFee: number;
         customerId: string;
         customerName: string;
+        subtotal: number;
         orderNumber: string;
         customerPhone: string;
         customerEmail: string | null;
@@ -230,7 +231,6 @@ export declare const orderService: {
         deliveryInstructions: string | null;
         deliveryLat: number | null;
         deliveryLng: number | null;
-        subtotal: number;
         discount: number;
         totalAmount: number;
         paymentMethod: import("../../../generated/prisma/enums").PaymentMethod;
@@ -247,11 +247,12 @@ export declare const orderService: {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        status: OrderStatus;
+        status: import("../../../generated/prisma/enums").OrderStatus;
         providerId: string;
         deliveryFee: number;
         customerId: string;
         customerName: string;
+        subtotal: number;
         orderNumber: string;
         customerPhone: string;
         customerEmail: string | null;
@@ -260,7 +261,6 @@ export declare const orderService: {
         deliveryInstructions: string | null;
         deliveryLat: number | null;
         deliveryLng: number | null;
-        subtotal: number;
         discount: number;
         totalAmount: number;
         paymentMethod: import("../../../generated/prisma/enums").PaymentMethod;
@@ -281,21 +281,22 @@ export declare const orderService: {
             id: string;
             mealId: string;
             orderId: string;
-            subtotal: number;
-            quantity: number;
-            specialInstructions: string | null;
             mealName: string;
             mealPrice: number;
+            quantity: number;
+            subtotal: number;
+            specialInstructions: string | null;
         }[];
     } & {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        status: OrderStatus;
+        status: import("../../../generated/prisma/enums").OrderStatus;
         providerId: string;
         deliveryFee: number;
         customerId: string;
         customerName: string;
+        subtotal: number;
         orderNumber: string;
         customerPhone: string;
         customerEmail: string | null;
@@ -304,7 +305,6 @@ export declare const orderService: {
         deliveryInstructions: string | null;
         deliveryLat: number | null;
         deliveryLng: number | null;
-        subtotal: number;
         discount: number;
         totalAmount: number;
         paymentMethod: import("../../../generated/prisma/enums").PaymentMethod;
