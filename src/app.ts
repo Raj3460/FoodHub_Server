@@ -28,13 +28,28 @@ app.use(express.json());
 // ✅ better-auth handler
 app.all('/api/auth/*splat', toNodeHandler(auth));
 
-app.use('/api/meals', mealRouter);
-app.use('/api/categories', categoryRouter);
-app.use('/api/providers', providerRouter);
-app.use('/api/cart', cartRouter);
-app.use('/api/orders', orderRouter);
-app.use('/api/reviews', reviewRouter);
-app.use('/api/admin', adminRouter);
+
+//todo: if webiste development is complete then i i can add this in my free time
+// app.use('/api/meals', mealRouter);
+// app.use('/api/categories', categoryRouter);
+// app.use('/api/providers', providerRouter);
+// app.use('/api/cart', cartRouter);
+// app.use('/api/orders', orderRouter);
+// app.use('/api/reviews', reviewRouter);
+// app.use('/api/admin', adminRouter);
+
+
+app.all('/api/auth/*splat', toNodeHandler(auth));
+app.use('/meals', mealRouter)
+app.use('/categories', categoryRouter)
+app.use('/providers', providerRouter)
+app.use('/cart', cartRouter)
+app.use('/orders', orderRouter )
+app.use('/reviews', reviewRouter)
+app.use('/admin', adminRouter)
+
+
+
 
 app.get("/", (req, res) => {
   res.send("FoodHub Server Running! 🍱");
