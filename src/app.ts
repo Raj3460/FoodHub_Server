@@ -39,7 +39,7 @@ app.all('/api/auth/*splat', toNodeHandler(auth));
 // app.use('/api/admin', adminRouter);
 
 
-app.all('/api/auth/*splat', toNodeHandler(auth));
+// app.all('/api/auth/*splat', toNodeHandler(auth));
 app.use('/meals', mealRouter)
 app.use('/categories', categoryRouter)
 app.use('/providers', providerRouter)
