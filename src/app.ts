@@ -1,7 +1,4 @@
-// src/app.ts
-
 import express, { Application } from "express";
-
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
 import cors from "cors";
@@ -14,32 +11,38 @@ import { reviewRouter } from "./modules/review/review.router";
 import { adminRouter } from "./modules/admin/admin.router";
 
 const app: Application = express();
-app.use(express.json());
+
+// ✅ CORS আগে, json এর আগে
 app.use(cors({
-       origin: process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000",
-       credentials: true,
+  origin: [
+    "http://localhost:3000",
+    "https://food-hub-client-nu.vercel.app",
+  ],
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
 }));
 
+app.use(express.json());
 
+// ✅ better-auth handler
 app.all('/api/auth/*splat', toNodeHandler(auth));
-app.use('/meals', mealRouter)
-app.use('/categories', categoryRouter)
-app.use('/providers', providerRouter)
-app.use('/cart', cartRouter)
-app.use('/orders', orderRouter )
-app.use('/reviews', reviewRouter)
-app.use('/admin', adminRouter)
+
+app.use('/api/meals', mealRouter);
+app.use('/api/categories', categoryRouter);
+app.use('/api/providers', providerRouter);
+app.use('/api/cart', cartRouter);
+app.use('/api/orders', orderRouter);
+app.use('/api/reviews', reviewRouter);
+app.use('/api/admin', adminRouter);
 
 app.get("/", (req, res) => {
-       res.send("Hello, World!");
+  res.send("FoodHub Server Running! 🍱");
 });
+
 app.get('/check-session', async (req, res) => {
   const session = await auth.api.getSession({ headers: req.headers as any });
   res.json({ session });
 });
-
-
-
-
 
 export default app;
