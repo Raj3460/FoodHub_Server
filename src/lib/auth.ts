@@ -1,15 +1,16 @@
 // src/lib/auth.ts
 
 
+
+
+
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
 import nodemailer from "nodemailer";
 
-
-
 const transporter = nodemailer.createTransport({
-  host: "smtp-relay.brevo.com",
+  host: "smtp.gmail.com",
   port: 587,
   secure: false,
   auth: {
@@ -17,8 +18,6 @@ const transporter = nodemailer.createTransport({
     pass: process.env.APP_PASS,
   },
 });
-
-
 
 // Initialize better-auth with Prisma adapter
 export const auth = betterAuth({
@@ -147,7 +146,7 @@ export const auth = betterAuth({
 </html>`;
 
         await transporter.sendMail({
-          from: `"FoodHub 🍱" <${process.env.APP_USER}>`,
+          from: '"FoodHub 🍱" <noreply@foodhub.com>',
           to: user.email,
           subject: "✅ Verify your FoodHub email",
           html: htmlTemplate,
