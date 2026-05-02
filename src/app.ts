@@ -9,6 +9,7 @@ import { cartRouter } from "./modules/cart/cart.router";
 import { orderRouter } from "./modules/order/order.router";
 import { reviewRouter } from "./modules/review/review.router";
 import { adminRouter } from "./modules/admin/admin.router";
+import userRouter from "./modules/user/user.router";
 
 const app: Application = express();
 
@@ -30,24 +31,27 @@ app.use(express.json());
 app.all('/api/auth/*splat', toNodeHandler(auth));
 
 
-//todo: if webiste development is complete then i i can add this in my free time
-// app.use('/api/meals', mealRouter);
-// app.use('/api/categories', categoryRouter);
-// app.use('/api/providers', providerRouter);
-// app.use('/api/cart', cartRouter);
-// app.use('/api/orders', orderRouter);
-// app.use('/api/reviews', reviewRouter);
-// app.use('/api/admin', adminRouter);
+//* DONE: if webiste development is complete then i i can add this in my free time : Done
+app.use('/api/meals', mealRouter);
+app.use('/api/categories', categoryRouter);
+app.use('/api/providers', providerRouter);
+app.use('/api/cart', cartRouter);
+app.use('/api/orders', orderRouter);
+app.use('/api/reviews', reviewRouter);
+app.use('/api/admin', adminRouter);
+app.use('/api/user', userRouter); //* here every user related routes will be there like profile update, get profile, etc.
 
 
+
+// it was primary for testing purpose but i can use it for health check also : Done
 // app.all('/api/auth/*splat', toNodeHandler(auth));
-app.use('/meals', mealRouter)
-app.use('/categories', categoryRouter)
-app.use('/providers', providerRouter)
-app.use('/cart', cartRouter)
-app.use('/orders', orderRouter )
-app.use('/reviews', reviewRouter)
-app.use('/admin', adminRouter)
+// app.use('/meals', mealRouter)
+// app.use('/categories', categoryRouter)
+// app.use('/providers', providerRouter)
+// app.use('/cart', cartRouter)
+// app.use('/orders', orderRouter )
+// app.use('/reviews', reviewRouter)
+// app.use('/admin', adminRouter)
 
 
 

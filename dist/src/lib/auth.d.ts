@@ -1,21 +1,31 @@
 export declare const auth: import("better-auth").Auth<{
     database: (options: import("better-auth").BetterAuthOptions) => import("better-auth").DBAdapter<import("better-auth").BetterAuthOptions>;
+    baseURL: {
+        protocol: "auto";
+        allowedHosts: string[];
+        fallback: string;
+    };
     trustedOrigins: string[];
+    advanced: {
+        trustedProxyHeaders: true;
+        defaultCookieAttributes: {
+            sameSite: "lax";
+            secure: boolean;
+            httpOnly: true;
+        };
+    };
     user: {
         additionalFields: {
             role: {
                 type: "string";
                 defaultValue: string;
-                required: false;
             };
             phone: {
                 type: "string";
-                required: false;
             };
             status: {
                 type: "string";
                 defaultValue: string;
-                required: false;
             };
         };
     };
@@ -27,16 +37,14 @@ export declare const auth: import("better-auth").Auth<{
     emailVerification: {
         sendOnSignUp: true;
         autoSignInAfterVerification: true;
-        sendVerificationEmail: ({ user, url, token }: {
+        sendVerificationEmail: ({ user, token }: {
             user: import("better-auth").User;
             url: string;
             token: string;
-        }, request: Request) => Promise<void>;
+        }) => Promise<void>;
     };
     socialProviders: {
         google: {
-            prompt: "select_account consent";
-            accessType: "offline";
             clientId: string;
             clientSecret: string;
         };
