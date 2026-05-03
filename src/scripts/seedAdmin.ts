@@ -1,57 +1,70 @@
 // src/scripts/seedAdmin.ts
-
 import { prisma } from "../lib/prisma";
 import { UserRole } from "../middlewares/auth";
 
 async function seedAdmin() {
-    try {
-        console.log("***** Admin Seeding Started....")
-        const adminData = {
-            name: process.env.ADMIN_NAME ,
-            email: process.env.ADMIN_EMAIL,
-            role: UserRole.ADMIN,
-            password: process.env.ADMIN_PASSWORD ,
-        }
-       
-        // check user exist on db or not
-        const existingUser = await prisma.user.findUnique({
-            where: {
-                email: adminData.email
-            }
-        });
+  console.log("***** Admin Seeding Started....");
 
-        if (existingUser) {
-            throw new Error("User already exists!!");
-        }
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  const adminName = process.env.ADMIN_NAME || "Admin";
+  // লোকাল ব্যাকএন্ডের URL (অথবা প্রোডাকশন URL)
+  const baseUrl = process.env.BETTER_AUTH_URL || "http://localhost:5000";
+  const signUpUrl = `${baseUrl}/api/auth/sign-up/email`;
 
-        const signUpAdmin = await fetch(`${process.env.BETTER_AUTH_URL}/api/auth/sign-up/email`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(adminData)
-        })
+  if (!adminEmail || !adminPassword) {
+    console.error("❌ ADMIN_EMAIL and ADMIN_PASSWORD must be set in .env");
+    process.exit(1);
+  }
 
-
-
-        if (signUpAdmin.ok) {
-            console.log("**** Admin created")
-            await prisma.user.update({
-                where: {
-                    email: adminData.email
-                },
-                data: {
-                    emailVerified: true
-                }
-            })
-
-            console.log("**** Email verification status updated!")
-        }
-        console.log("******* SUCCESS ******")
-
-    } catch (error) {
-        console.error(error);
+  try {
+    // চেক করুন অ্যাডমিন ইতিমধ্যে আছে কিনা
+    const existingUser = await prisma.user.findUnique({
+      where: { email: adminEmail },
+    });
+    if (existingUser) {
+      console.log("⚠️ Admin already exists. Skipping creation.");
+      return;
     }
+
+    // BetterAuth সাইন-আপ কল – Origin হেডার সহ
+    const response = await fetch(signUpUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Origin": "http://localhost:5000",   // ← এই লাইনটি গুরুত্বপূর্ণ
+      },
+      body: JSON.stringify({
+        name: adminName,
+        email: adminEmail,
+        password: adminPassword,
+        role: UserRole.ADMIN,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Sign-up failed (${response.status}): ${errorText}`);
+    }
+
+    const data = await response.json();
+    const userId = data.user?.id;
+    if (!userId) {
+      throw new Error("No user ID returned from sign-up");
+    }
+
+    console.log("✅ Admin user created. Updating email verification...");
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { emailVerified: true, role: UserRole.ADMIN },
+    });
+
+    console.log("🎉 Admin seeding completed successfully.");
+  } catch (error) {
+    console.error("❌ Seeding failed:", error);
+    process.exit(1);
+  }
 }
 
-seedAdmin()
+seedAdmin();
