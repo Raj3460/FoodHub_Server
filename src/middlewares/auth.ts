@@ -32,6 +32,9 @@ const auth = (...roles: UserRole[]) => {
         headers: req.headers as any,
       });
       // console.log("session , " , session);
+      // auth middleware এ
+
+// console.log("SESSION:", JSON.stringify(session, null, 2)); // ← এটা add করো
 
       if (!session) {
         return res.status(401).json({
