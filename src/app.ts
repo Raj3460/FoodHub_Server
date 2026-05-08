@@ -10,6 +10,7 @@ import { orderRouter } from "./modules/order/order.router";
 import { reviewRouter } from "./modules/review/review.router";
 import { adminRouter } from "./modules/admin/admin.router";
 import userRouter from "./modules/user/user.router";
+import uploadRoutes from "./modules/upload/upload.routes";
 
 const app: Application = express();
 
@@ -39,8 +40,9 @@ app.use('/api/cart', cartRouter);
 app.use('/api/orders', orderRouter);
 app.use('/api/reviews', reviewRouter);
 app.use('/api/admin', adminRouter);
-app.use('/api/user', userRouter); //* here every user related routes will be there like profile update, get profile, etc.
+app.use('/api/user', userRouter); //! here every user related routes will be there like profile update, get profile, etc.
 
+app.use("/api/upload", uploadRoutes);
 
 
 // it was primary for testing purpose but i can use it for health check also : Done

@@ -1,10 +1,11 @@
+// src/modules/category/category.controller.ts (সংশোধিত)
 import { Request, Response } from "express";
 import { categoryService } from "./category.service";
 
 export const categoryController = {
-  // POST /categories (admin only)
   createCategory: async (req: Request, res: Response) => {
     try {
+      // Optional: validate req.body here (e.g., with Zod)
       const category = await categoryService.createCategory(req.body);
       res.status(201).json({ success: true, data: category });
     } catch (error: any) {
@@ -16,7 +17,6 @@ export const categoryController = {
     }
   },
 
-  // GET /categories (public)
   getAllCategories: async (req: Request, res: Response) => {
     try {
       const search = req.query.search as string | undefined;
@@ -31,10 +31,8 @@ export const categoryController = {
     }
   },
 
-  // GET /categories/:id (public)
   getCategoryById: async (req: Request, res: Response) => {
     try {
-      //       const id = req.params.id as string;
       const { id } = req.params;
       if (!id || typeof id !== "string") {
         return res
@@ -57,12 +55,11 @@ export const categoryController = {
     }
   },
 
-  // PUT /categories/:id (admin only)
   updateCategory: async (req: Request, res: Response) => {
     try {
-      const id = req.params.id as string;
-
-      const category = await categoryService.updateCategory(id, req.body);
+      const { id } = req.params;
+      // Optional: validate req.body here
+      const category = await categoryService.updateCategory(id as string, req.body);
       res.json({ success: true, data: category });
     } catch (error: any) {
       res.status(500).json({
@@ -73,23 +70,22 @@ export const categoryController = {
     }
   },
 
-  // DELETE /categories/:id (admin only)
-    deleteCategory: async (req: Request, res: Response) => {
-      try {
-       const id = req.params.id as string;
-       if (!id || typeof id !== "string") {
-         return res
-           .status(400)
-           .json({ success: false, message: "Invalid or missing category ID" });
-       }
-       await categoryService.deleteCategory(id);
-       res.json({ success: true, message: "Category deleted successfully" });
-     } catch (error: any) {
-       res.status(500).json({
-         success: false,
-          message: error.message || "Failed to delete category",
-          error: error.message,
-        });
+  deleteCategory: async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      if (!id || typeof id !== "string") {
+        return res
+          .status(400)
+          .json({ success: false, message: "Invalid or missing category ID" });
       }
-    },
+      await categoryService.deleteCategory(id);
+      res.json({ success: true, message: "Category deleted successfully" });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: error.message || "Failed to delete category",
+        error: error.message,
+      });
+    }
+  },
 };

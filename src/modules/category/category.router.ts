@@ -11,17 +11,17 @@ router.get("/:id", categoryController.getCategoryById);
 // Admin-only routes
 router.post(
   "/",
-  auth(UserRole.ADMIN , UserRole.PROVIDER), //for testing purpose
+  auth(UserRole.ADMIN ), //for testing purpose
   categoryController.createCategory
 );
 router.put(
   "/:id",
-  auth(UserRole.ADMIN , UserRole.PROVIDER), //for testing purpose
+  auth(UserRole.ADMIN ), //for testing purpose
   categoryController.updateCategory
 );
 router.delete(
   "/:id",
-  auth(UserRole.ADMIN , UserRole.PROVIDER), //for testing purpose
+  auth(UserRole.ADMIN ), //for testing purpose
   categoryController.deleteCategory
 );
 
