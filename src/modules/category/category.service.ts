@@ -1,4 +1,4 @@
-// src/modules/category/category.service.ts (সংশোধিত)
+// src/modules/category/category.service.ts 
 import { Category, Prisma } from "@prisma/client";
 import { prisma } from "../../lib/prisma";
 

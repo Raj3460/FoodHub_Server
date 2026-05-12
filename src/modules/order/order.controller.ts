@@ -159,20 +159,60 @@ export const orderController = {
     }
   },
 
-  // GET /orders/admin — Admin সব orders দেখবে
+  // GET /orders/admin/stats — Admin summary stats দেখবে
+  getOrderStats: async (req: Request, res: Response) => {
+    try {
+      const stats = await orderService.getOrderStats();
+      res.json({ success: true, data: stats });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: "Failed to fetch stats",
+        error: error.message,
+      });
+    }
+  },
+
+  // GET /orders/admin — Admin সব orders দেখবে (pagination + filter + search)
   getAllOrders: async (req: Request, res: Response) => {
     try {
-      const orders = await orderService.getAllOrders();
-      res.json({
-        success: true,
-        total: orders.length,
-        data: orders,
+      const { page, limit, status, search } = req.query;
+
+      const result = await orderService.getAllOrders({
+        page: page ? parseInt(page as string) : 1,
+        limit: limit ? parseInt(limit as string) : 10,
+        status: status as string,
+        search: search as string,
       });
+
+      res.json({ success: true, ...result });
     } catch (error: any) {
       res.status(500).json({
         success: false,
         message: "Failed to fetch orders",
         error: error.message,
+      });
+    }
+  },
+
+  // PATCH /orders/admin/:id/cancel — Admin order cancel করবে
+  adminCancelOrder: async (req: Request, res: Response) => {
+    try {
+      const { reason } = req.body;
+      const order = await orderService.adminCancelOrder(
+        req.params.id as string,
+        reason
+      );
+
+      res.json({
+        success: true,
+        message: "Order cancelled successfully",
+        data: order,
+      });
+    } catch (error: any) {
+      res.status(400).json({
+        success: false,
+        message: error.message || "Failed to cancel order",
       });
     }
   },

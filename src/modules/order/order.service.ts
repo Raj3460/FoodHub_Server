@@ -8,7 +8,6 @@ const generateOrderNumber = (): string => {
   return `FH-${timestamp}-${random}`;
 };
 
-// Order create করার সময় cart থেকে data নিয়ে order তৈরি করব, subtotal, delivery fee, total amount calculate করব, minimum order check করব, এবং transaction এর মাধ্যমে order এবং order items একসাথে তৈরি করব। Order create হওয়ার পরে cart clear করে দেবো।
 const createOrder = async (
   customerId: string,
   data: {
@@ -20,7 +19,6 @@ const createOrder = async (
     customerEmail?: string;
   }
 ) => {
-  // Cart check 
   const cart = await prisma.cart.findUnique({
     where: { customerId },
     include: {
@@ -50,19 +48,12 @@ const createOrder = async (
     },
   });
 
-  if (!cart || cart.items.length === 0) {
-    throw new Error("Cart is empty");
-  }
-
-  if (!cart.provider) {
-    throw new Error("Provider not found");
-  }
-
+  if (!cart || cart.items.length === 0) throw new Error("Cart is empty");
+  if (!cart.provider) throw new Error("Provider not found");
   if (!cart.provider.isApproved || !cart.provider.isOpen) {
     throw new Error("Provider is not available right now");
   }
 
-  // subtotal calculate 
   const subtotal = cart.items.reduce((sum, item) => {
     const price = item.meal.discountPrice ?? item.meal.price;
     return sum + price * item.quantity;
@@ -71,7 +62,6 @@ const createOrder = async (
   const deliveryFee = cart.provider.deliveryFee;
   const minOrderAmount = cart.provider.minOrderAmount;
 
-  // minimum order check 
   if (subtotal < minOrderAmount) {
     throw new Error(
       `Minimum order amount is ${minOrderAmount}. Current subtotal is ${subtotal}`
@@ -80,9 +70,7 @@ const createOrder = async (
 
   const totalAmount = subtotal + deliveryFee;
 
-  // Order এবং OrderItems একসাথে তৈরি করব (transaction)
   const order = await prisma.$transaction(async (tx) => {
-    // Order model এ create করব, এবং সাথে সাথে OrderItem গুলোও create করব
     const newOrder = await tx.order.create({
       data: {
         orderNumber: generateOrderNumber(),
@@ -104,7 +92,8 @@ const createOrder = async (
             mealName: item.meal.name,
             mealPrice: item.meal.discountPrice ?? item.meal.price,
             quantity: item.quantity,
-            subtotal: (item.meal.discountPrice ?? item.meal.price) * item.quantity,
+            subtotal:
+              (item.meal.discountPrice ?? item.meal.price) * item.quantity,
             specialInstructions: item.specialInstructions,
           })),
         },
@@ -117,7 +106,6 @@ const createOrder = async (
       },
     });
 
-    // প্রতিটি মিলের totalOrders আপডেট করব
     for (const item of cart.items) {
       await tx.meal.update({
         where: { id: item.meal.id },
@@ -125,7 +113,6 @@ const createOrder = async (
       });
     }
 
-    // Cart clear করব order এর পরে
     await tx.cartItem.deleteMany({ where: { cartId: cart.id } });
     await tx.cart.update({
       where: { id: cart.id },
@@ -138,16 +125,13 @@ const createOrder = async (
   return order;
 };
 
-// Customer can see all their orders
 const getMyOrders = async (customerId: string) => {
   return await prisma.order.findMany({
     where: { customerId },
     include: {
       items: {
         include: {
-          meal: {
-            select: { thumbnail: true },
-          },
+          meal: { select: { thumbnail: true } },
         },
       },
       provider: {
@@ -158,16 +142,13 @@ const getMyOrders = async (customerId: string) => {
   });
 };
 
-// Customer can see specific order details
 const getMyOrderById = async (orderId: string, customerId: string) => {
   return await prisma.order.findFirst({
     where: { id: orderId, customerId },
     include: {
       items: {
         include: {
-          meal: {
-            select: { thumbnail: true, name: true },
-          },
+          meal: { select: { thumbnail: true, name: true } },
         },
       },
       provider: {
@@ -183,19 +164,19 @@ const getMyOrderById = async (orderId: string, customerId: string) => {
   });
 };
 
-// Customer order cancel করবে, কিন্তু শুধু placed status এ cancel করা যাবে। Cancel করার সময় optional cancellation reason দিতে পারবে, এবং cancelledAt timestamp set হবে।
-const cancelOrder = async (orderId: string, customerId: string, reason?: string) => {
+const cancelOrder = async (
+  orderId: string,
+  customerId: string,
+  reason?: string
+) => {
   const order = await prisma.order.findFirst({
     where: { id: orderId, customerId },
   });
 
   if (!order) throw new Error("Order not found");
 
-  // শুধু placed status এ cancel করা যাবে
   if (order.status !== "placed") {
-    throw new Error(
-      "Order can only be cancelled when it is in placed status"
-    );
+    throw new Error("Order can only be cancelled when it is in placed status");
   }
 
   return await prisma.order.update({
@@ -208,12 +189,8 @@ const cancelOrder = async (orderId: string, customerId: string, reason?: string)
   });
 };
 
-// Provider তার সব orders দেখবে, order items এর সাথে meal এর thumbnail এবং provider এর restaurant name ও logo দেখাবো। Orders createdAt এর descending order এ দেখাবো।
 const getProviderOrders = async (userId: string) => {
-  const provider = await prisma.provider.findUnique({
-    where: { userId },
-  });
-
+  const provider = await prisma.provider.findUnique({ where: { userId } });
   if (!provider) throw new Error("Provider profile not found");
 
   return await prisma.order.findMany({
@@ -229,7 +206,6 @@ const getProviderOrders = async (userId: string) => {
   });
 };
 
-// Provider order status update 
 const updateOrderStatus = async (
   orderId: string,
   userId: string,
@@ -244,7 +220,6 @@ const updateOrderStatus = async (
 
   if (!order) throw new Error("Order not found");
 
-  // Status flow validate 
   const allowedTransitions: Record<string, OrderStatus[]> = {
     placed: ["preparing", "cancelled"],
     preparing: ["ready"],
@@ -259,7 +234,6 @@ const updateOrderStatus = async (
     );
   }
 
-  // Status অনুযায়ী timestamp set করব
   const timestampField: Partial<Record<OrderStatus, object>> = {
     preparing: { preparingAt: new Date() },
     ready: { readyAt: new Date() },
@@ -269,24 +243,102 @@ const updateOrderStatus = async (
 
   return await prisma.order.update({
     where: { id: orderId },
+    data: { status, ...timestampField[status] },
+  });
+};
+
+// ✅ Admin — pagination + filter + search সহ
+const getAllOrders = async (query: {
+  page?: number;
+  limit?: number;
+  status?: string;
+  search?: string;
+}) => {
+  const page = query.page || 1;
+  const limit = query.limit || 10;
+  const skip = (page - 1) * limit;
+
+  const where: any = {};
+
+  if (query.status && query.status !== "all") {
+    where.status = query.status;
+  }
+
+  if (query.search) {
+    where.OR = [
+      { orderNumber: { contains: query.search, mode: "insensitive" } },
+      { customerName: { contains: query.search, mode: "insensitive" } },
+    ];
+  }
+
+  const [orders, total] = await Promise.all([
+    prisma.order.findMany({
+      where,
+      include: {
+        items: true,
+        provider: { select: { restaurantName: true } },
+      },
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: limit,
+    }),
+    prisma.order.count({ where }),
+  ]);
+
+  return {
+    orders,
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  };
+};
+
+// ✅ Admin — order cancel করবে
+const adminCancelOrder = async (orderId: string, reason?: string) => {
+  const order = await prisma.order.findUnique({ where: { id: orderId } });
+  if (!order) throw new Error("Order not found");
+
+  if (order.status === "delivered" || order.status === "cancelled") {
+    throw new Error("Cannot cancel a delivered or already cancelled order");
+  }
+
+  return await prisma.order.update({
+    where: { id: orderId },
     data: {
-      status,
-      ...timestampField[status],
+      status: "cancelled",
+      cancelledAt: new Date(),
+      ...(reason !== undefined && { cancellationReason: reason }),
     },
   });
 };
 
-// Admin can see all orders
-const getAllOrders = async () => {
-  return await prisma.order.findMany({
-    include: {
-      items: true,
-      provider: {
-        select: { restaurantName: true },
-      },
-    },
-    orderBy: { createdAt: "desc" },
-  });
+// ✅ Admin — summary stats
+const getOrderStats = async () => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const [total, placed, preparing, delivered, cancelled, todayRevenue] =
+    await Promise.all([
+      prisma.order.count(),
+      prisma.order.count({ where: { status: "placed" } }),
+      prisma.order.count({ where: { status: "preparing" } }),
+      prisma.order.count({ where: { status: "delivered" } }),
+      prisma.order.count({ where: { status: "cancelled" } }),
+      prisma.order.aggregate({
+        where: { status: "delivered", createdAt: { gte: today } },
+        _sum: { totalAmount: true },
+      }),
+    ]);
+
+  return {
+    total,
+    placed,
+    preparing,
+    delivered,
+    cancelled,
+    todayRevenue: todayRevenue._sum.totalAmount || 0,
+  };
 };
 
 export const orderService = {
@@ -297,4 +349,6 @@ export const orderService = {
   getProviderOrders,
   updateOrderStatus,
   getAllOrders,
+  adminCancelOrder,
+  getOrderStats,
 };
